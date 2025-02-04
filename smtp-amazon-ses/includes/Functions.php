@@ -182,6 +182,7 @@ class Functions {
 				}
 
 				// Result ALL
+				$totalItems = 0;
 				if ( ! empty( $valSearch ) ) {
 					$subjectWhere = 'subject LIKE "%' . $valSearch . '%"';
 					$toEmailWhere = 'email_to LIKE "%' . $valSearch . '%"';
@@ -189,24 +190,22 @@ class Functions {
 					if ( ! empty( $statusWhere ) ) {
 						$whereQuery = '(' . $whereQuery . ') AND (' . $statusWhere . ')';
 					}
-					$sqlRepareAll = $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}yay_smtp_amazonses_email_logs WHERE $whereQuery" );
+
+					$totalItems = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}yay_smtp_amazonses_email_logs WHERE $whereQuery" );
 
 					$sqlRepare = $wpdb->prepare(
-						"SELECT * FROM {$wpdb->prefix}yay_smtp_amazonses_email_logs WHERE $whereQuery ORDER BY $sortField $sortVal LIMIT %d OFFSET %d",
+						"SELECT l.id, l.subject, l.email_from, l.email_to, l.mailer, l.date_time, l.status FROM {$wpdb->prefix}yay_smtp_amazonses_email_logs AS l WHERE $whereQuery ORDER BY $sortField $sortVal LIMIT %d OFFSET %d",
 						$limit,
 						$offset
 					);
 				} else {
-					$sqlRepareAll = $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}yay_smtp_amazonses_email_logs WHERE $statusWhere" );
-
+					$totalItems = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}yay_smtp_amazonses_email_logs WHERE $statusWhere" );
 					$sqlRepare = $wpdb->prepare(
-						"SELECT * FROM {$wpdb->prefix}yay_smtp_amazonses_email_logs WHERE $statusWhere ORDER BY $sortField $sortVal LIMIT %d OFFSET %d",
+						"SELECT l.id, l.subject, l.email_from, l.email_to, l.mailer, l.date_time, l.status FROM {$wpdb->prefix}yay_smtp_amazonses_email_logs AS l WHERE $statusWhere ORDER BY $sortField $sortVal LIMIT %d OFFSET %d",
 						$limit,
 						$offset
 					);
 				}
-				$resultQueryAll = $wpdb->get_results( $sqlRepareAll );
-				$totalItems     = count( $resultQueryAll );
 
 				// Result Custom
 				$results = $wpdb->get_results( $sqlRepare );
@@ -217,7 +216,7 @@ class Functions {
 					$emailTo         = maybe_unserialize( $result->email_to );
 					$emailEl         = array(
 						'id'         => $result->id,
-						'subject'    => $result->subject,
+						'subject'    => wp_kses_post( $result->subject ),
 						'email_from' => $result->email_from,
 						'email_to'   => $emailTo,
 						'mailer'     => $result->mailer,
@@ -348,7 +347,7 @@ class Functions {
 					$emailTo   = maybe_unserialize( $resultQuery->email_to );
 					$resultArr = array(
 						'id'         => $resultQuery->id,
-						'subject'    => $resultQuery->subject,
+						'subject'    => wp_kses_post( $resultQuery->subject ),
 						'email_from' => $resultQuery->email_from,
 						'email_to'   => $emailTo,
 						'mailer'     => $resultQuery->mailer,
@@ -358,7 +357,7 @@ class Functions {
 
 					if ( ! empty( $resultQuery->content_type ) ) {
 						$resultArr['content_type'] = $resultQuery->content_type;
-						$resultArr['body_content'] = maybe_serialize( $resultQuery->body_content );
+						$resultArr['body_content'] = Utils::wpKses( maybe_serialize( $resultQuery->body_content ));
 					}
 
 					if ( ! empty( $resultQuery->reason_error ) ) {

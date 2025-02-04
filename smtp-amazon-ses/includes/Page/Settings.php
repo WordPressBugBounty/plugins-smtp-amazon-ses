@@ -65,6 +65,7 @@ class Settings {
 			}
 
 			wp_enqueue_script( $scriptId, YAY_SMTP_AMAZONSES_PLUGIN_URL . 'assets/js/yay-smtp-admin.js', array(), YAY_SMTP_AMAZONSES_VERSION, true );
+			wp_enqueue_script( 'yaysmtp_amazonses_purify', YAY_SMTP_AMAZONSES_PLUGIN_URL . 'assets/js/purify.min.js', array(), YAY_SMTP_AMAZONSES_VERSION, true );
 			$amazonses_settings = get_option( YAY_SMTP_AMAZONSES_PREFIX . '_settings' );
 			wp_localize_script(
 				$scriptId,

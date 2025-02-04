@@ -1295,12 +1295,11 @@
 .yay-smtp-wrap.mail-logs .yay-smtp-activity-panel-content.panel-content table {
   table-layout: fixed;
 }
-.yay-smtp-wrap.mail-logs .yay-smtp-activity-panel-content.panel-content td,
-.yay-smtp-wrap.mail-logs
-  .yay-smtp-activity-panel-content.panel-content
-  .mail-body-el {
-  padding: 10px 15px;
+.yay-smtp-wrap.mail-logs .yay-smtp-activity-panel-content.panel-content > table tr {
   border-bottom: 1px solid #ddd;
+}
+.yay-smtp-wrap.mail-logs .yay-smtp-activity-panel-content.panel-content > table td {
+  padding: 10px 15px;
   vertical-align: middle;
 }
 .yay-smtp-wrap.mail-logs

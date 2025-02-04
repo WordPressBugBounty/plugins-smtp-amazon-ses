@@ -57,12 +57,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 		  </td>
 		</tr>
 	  </table>
-	  <div class="mail-body-el" style="padding: 10px 15px; border-bottom: 1px solid #ddd; vertical-align: baseline;">
+	  <div class="mail-body-el" style="padding: 10px 15px; vertical-align: baseline;">
 		<div class="content-el">
 		  <span class="title">Email Body</span>
 		</div>
 	  </div>
-	  <div class="mail-body-el mail-body-content-detail" style="padding: 10px 15px; border-bottom: 1px solid #ddd; vertical-align: baseline;">
+	  <div class="mail-body-el mail-body-content-detail" style="padding: 10px 15px; vertical-align: baseline;">
 
 	  </div>
 	</div>

@@ -216,7 +216,7 @@ class Utils {
 			global $wpdb;
 			$tableName = $wpdb->prefix . YAY_SMTP_AMAZONSES_PREFIX . '_email_logs';
 			$content   = array(
-				'subject'    => $data['subject'],
+				'subject'    => wp_kses_post( $data['subject'] ),
 				'email_from' => $data['email_from'],
 				'email_to'   => maybe_serialize( $data['email_to'] ),
 				'mailer'     => $data['mailer'],
@@ -230,10 +230,34 @@ class Utils {
 
 			if ( 'basic_inf' !== $infTypeSetting ) {
 				$content['content_type'] = $data['content_type'];
-				$content['body_content'] = maybe_serialize( $data['body_content'] );
+				$content['body_content'] = self::wpKses( maybe_serialize( $data['body_content'] ));
 			}
 
 			$wpdb->insert( $tableName, $content );
 		}
 	}
+
+	public static function wpKsesAllowedHtml( $cus_attr_tags = [] ) {
+        $allowed_html_tags           = wp_kses_allowed_html( 'post' );
+        $allowed_html_tags['style']  = true;
+        $allowed_html_tags['html']   = [];
+        $allowed_html_tags['header'] = [];
+        $allowed_html_tags['meta']   = [];
+        $allowed_html_attr           = $cus_attr_tags;
+        $allowed_html_attr ['charset']                   = true;
+        $allowed_html_attr ['http-equiv']                = true;
+        $allowed_html_attr ['content']                   = true;
+        $allowed_html_attr ['name']                      = true;
+        return array_map(
+            function ( $item ) use ( $allowed_html_attr ) {
+                return is_array( $item ) ? array_merge( $item, $allowed_html_attr ) : $item;
+            },
+            $allowed_html_tags
+        );
+    }
+
+	public static function wpKses( $html ) {
+        $allowed_html = self::wpKsesAllowedHtml();
+        return wp_kses( $html, $allowed_html );
+    }
 }

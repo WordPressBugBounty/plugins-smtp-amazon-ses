@@ -811,6 +811,9 @@ var yay_smtp_amazonses_class_obj = ".yay_smtp_amazonses";
                 }
 
                 if (typeof data.body_content !== "undefined") {
+                  let bodyContentRep = data.body_content;
+                  let bodyContent = yaysmtp_amazonses_wrap_url(bodyContentRep)
+                  
                   $(yay_smtp_amazonses_class_obj + ".yay-smtp-wrap.mail-logs")
                     .find(".yay-smtp-mail-detail-drawer .mail-body-el")
                     .show();
@@ -818,7 +821,7 @@ var yay_smtp_amazonses_class_obj = ".yay_smtp_amazonses";
                     .find(
                       ".yay-smtp-mail-detail-drawer .mail-body-content-detail"
                     )
-                    .html(data.body_content);
+                    .html(DOMPurify.sanitize(bodyContent));
                 } else {
                   $(yay_smtp_amazonses_class_obj + ".yay-smtp-wrap.mail-logs")
                     .find(".yay-smtp-mail-detail-drawer .mail-body-el")
@@ -1708,3 +1711,18 @@ function loadFirstYaySMTPAmazonSESLogsList() {
   };
   YaySmtpAmazonSESEmailLogsList(param);
 }
+
+function yaysmtp_amazonses_wrap_url(string) { 
+	let url = /(http|https):\/\/[\w-]+(\.[\w-]+)+([\w.,@?^=%&amp;:\/~+#-]*[\w@?^=%&amp;\/~+#-])?/gi;
+
+  let stringReplace = jQuery('<div>').html(string).contents().each(function () {
+    if (this.nodeType === 3) { // if node is a textNode
+        jQuery(this).replaceWith(function () {
+            return this.nodeValue.replace(url, function (m) {
+                return '<a href="' + m + '">' + m + '</a>';
+            })
+        })
+    }
+  }).end().html();
+  return stringReplace
+} 
