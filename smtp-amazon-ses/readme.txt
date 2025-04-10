@@ -3,8 +3,8 @@ Contributors: YayCommerce
 Tags: smtp, amazon, ses, wordpress smtp, aws, newsletter
 Requires at least: 4.0
 Requires PHP: 5.3
-Tested up to: 6.7
-Stable tag: 1.8
+Tested up to: 6.7.2
+Stable tag: 1.9
 License: GPL-2.0+
 License URI: http://www.gnu.org/licenses/gpl-2.0.txt
 
@@ -75,6 +75,9 @@ You can customize WooCommerce email templates by using the free [YayMail](https:
 2. Send test email & email logs
 
 == Changelog ==
+
+= 1.9 - Apr 10, 2025 =
+- Fixed: XSS with special character
 
 = 1.8 - Feb 4, 2025 =
 - Fixed: XSS 
