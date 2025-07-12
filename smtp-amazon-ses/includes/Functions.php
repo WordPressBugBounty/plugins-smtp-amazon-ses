@@ -184,24 +184,22 @@ class Functions {
 				// Result ALL
 				$totalItems = 0;
 				if ( ! empty( $valSearch ) ) {
-					$subjectWhere = 'subject LIKE "%' . $valSearch . '%"';
-					$toEmailWhere = 'email_to LIKE "%' . $valSearch . '%"';
-					$whereQuery   = "{$subjectWhere} OR {$toEmailWhere}";
-					if ( ! empty( $statusWhere ) ) {
-						$whereQuery = '(' . $whereQuery . ') AND (' . $statusWhere . ')';
-					}
+
+					$subjectWhere = $wpdb->prepare( "subject LIKE %s", '%' . $wpdb->esc_like( $valSearch ) . '%' );
+					$toEmailWhere = $wpdb->prepare( "email_to LIKE %s", '%' . $wpdb->esc_like( $valSearch ) . '%' );
+					$whereQuery   = "({$subjectWhere} OR {$toEmailWhere}) AND ({$statusWhere})";
 
 					$totalItems = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}yay_smtp_amazonses_email_logs WHERE $whereQuery" );
 
 					$sqlRepare = $wpdb->prepare(
-						"SELECT l.id, l.subject, l.email_from, l.email_to, l.mailer, l.date_time, l.status FROM {$wpdb->prefix}yay_smtp_amazonses_email_logs AS l WHERE $whereQuery ORDER BY $sortField $sortVal LIMIT %d OFFSET %d",
+						"SELECT l.id, l.subject, l.email_from, l.email_to, l.mailer, l.date_time, l.status FROM {$wpdb->prefix}yay_smtp_amazonses_email_logs AS l WHERE $whereQuery ORDER BY " . sanitize_sql_orderby($sortField . ' ' . $sortVal) . " LIMIT %d OFFSET %d",
 						$limit,
 						$offset
 					);
 				} else {
 					$totalItems = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}yay_smtp_amazonses_email_logs WHERE $statusWhere" );
 					$sqlRepare = $wpdb->prepare(
-						"SELECT l.id, l.subject, l.email_from, l.email_to, l.mailer, l.date_time, l.status FROM {$wpdb->prefix}yay_smtp_amazonses_email_logs AS l WHERE $statusWhere ORDER BY $sortField $sortVal LIMIT %d OFFSET %d",
+						"SELECT l.id, l.subject, l.email_from, l.email_to, l.mailer, l.date_time, l.status FROM {$wpdb->prefix}yay_smtp_amazonses_email_logs AS l WHERE $statusWhere ORDER BY " . sanitize_sql_orderby($sortField . ' ' . $sortVal) . " LIMIT %d OFFSET %d",
 						$limit,
 						$offset
 					);
@@ -276,11 +274,15 @@ class Functions {
 				$params = Utils::saniValArray( $_POST['params'] );
 				$ids    = isset( $params['ids'] ) ? $params['ids'] : ''; // '1,2,3'
 
+				$ids_array = explode( ',', (string) $ids );
+				$ids_array = array_map( 'intval', $ids_array );
+				$id_placeholders  = implode( ', ', array_fill( 0, count( $ids_array ), '%d' ) );
+
 				if ( empty( $ids ) ) {
 					wp_send_json_error( array( 'mess' => __( 'No email log id found', 'smtp-amazon-ses' ) ) );
 				}
 
-				$deleted = $wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->prefix}yay_smtp_amazonses_email_logs WHERE ID IN( $ids )" ) );
+				$deleted = $wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->prefix}yay_smtp_amazonses_email_logs WHERE ID IN( $id_placeholders )", $ids_array ) );
 
 				if ( '' !== $wpdb->last_error ) {
 					wp_send_json_error( array( 'mess' => __( $wpdb->last_error, 'smtp-amazon-ses' ) ) );
